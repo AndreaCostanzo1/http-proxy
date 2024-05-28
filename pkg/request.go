@@ -25,6 +25,11 @@ type ProxiedRequest interface {
 	// It allows to set comma separated values for the provided keys
 	// It replaces any existing values associated with the keys
 	SetMultiValueHeaders(headers map[string][]string) ProxiedRequest
+	// Adds an interceptor that is executed over the response
+	WithGenericInterceptor(handlers ...errorHandler) ProxiedRequest
+	// Adds an interceptor that is executed when the response status code
+	// matches the provided value
+	WithStatusCodeInterceptor(statusCode int, handlers ...errorHandler) ProxiedRequest
 	// Generates the underlying request without sending it. After this the request
 	// can't be modified or it will return an error
 	UnderlyingRequest() (*http.Request, error)
@@ -35,21 +40,25 @@ type ProxiedRequest interface {
 }
 
 type ProxiedRequestImpl struct {
-	method            string
-	url               string
-	body              io.Reader
-	context           context.Context
-	headers           map[string][]string
-	requestError      error
-	underlyingRequest *http.Request
+	method                 string
+	url                    string
+	body                   io.Reader
+	context                context.Context
+	headers                map[string][]string
+	requestError           error
+	underlyingRequest      *http.Request
+	statusCodeInterceptors map[int][]errorHandler
+	genericInterceptors    []errorHandler
 }
 
 func NewRequest(method string, url string) *ProxiedRequestImpl {
 	return &ProxiedRequestImpl{
-		method:  method,
-		headers: map[string][]string{},
-		url:     url,
-		body:    http.NoBody,
+		method:                 method,
+		headers:                map[string][]string{},
+		url:                    url,
+		body:                   http.NoBody,
+		genericInterceptors:    []errorHandler{},
+		statusCodeInterceptors: map[int][]errorHandler{},
 	}
 }
 
@@ -85,7 +94,12 @@ func (requestIntent *ProxiedRequestImpl) Send() (*http.Response, error) {
 		return nil, requestIntent.requestError
 	}
 
-	return http.DefaultClient.Do(requestIntent.underlyingRequest)
+	var response *http.Response
+	var err error
+	if response, err = http.DefaultClient.Do(requestIntent.underlyingRequest); err == nil {
+		response, err = requestIntent.validateResponse(response)
+	}
+	return response, err
 }
 
 func (requestIntent *ProxiedRequestImpl) verifyUnderlyingRequestNotGenerated() {
