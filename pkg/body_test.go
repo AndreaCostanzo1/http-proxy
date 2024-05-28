@@ -8,7 +8,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	http_proxy "github.com/AndreaCostanzo1/http-proxy"
+	http_proxy "github.com/AndreaCostanzo1/http-proxy/pkg"
 )
 
 func TestSetBody(t *testing.T) {
