@@ -28,6 +28,8 @@ type ProxiedRequest interface {
 	// Generates the underlying request without sending it. After this the request
 	// can't be modified or it will return an error
 	UnderlyingRequest() (*http.Request, error)
+	// Set the context of the request
+	WithContext(ctx context.Context) ProxiedRequest
 	// Generates the underlying request if not already generated and sends it
 	Send() (*http.Response, error)
 }
