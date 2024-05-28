@@ -107,7 +107,8 @@ func TestSetJSONBody(t *testing.T) {
 		if err != nil {
 			t.Errorf("expected no error, got %v", err)
 		}
-		if resp.StatusCode == http.StatusOK {
+		if resp.StatusCode != http.StatusOK {
+			println("Let's add a line")
 			t.Errorf("expected status code 200, got %d", resp.StatusCode)
 		}
 	})
