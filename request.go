@@ -1,0 +1,76 @@
+package http_proxy
+
+import (
+	"context"
+	"fmt"
+	"io"
+	"net/http"
+)
+
+type ProxiedRequest interface {
+	// Generates the underlying request without sending it. After this the request
+	// can't be modified or it will return an error
+	UnderlyingRequest() (*http.Request, error)
+	// Generates the underlying request if not already generated and sends it
+	Send() (*http.Response, error)
+}
+
+type ProxiedRequestImpl struct {
+	method            string
+	url               string
+	body              io.Reader
+	context           context.Context
+	headers           map[string][]string
+	requestError      error
+	underlyingRequest *http.Request
+}
+
+func NewRequest(method string, url string) *ProxiedRequestImpl {
+	return &ProxiedRequestImpl{
+		method:  method,
+		headers: map[string][]string{},
+		url:     url,
+		body:    http.NoBody,
+	}
+}
+
+func (requestIntent *ProxiedRequestImpl) UnderlyingRequest() (*http.Request, error) {
+	if requestIntent.requestError != nil {
+		return nil, requestIntent.requestError
+	}
+	if requestIntent.underlyingRequest != nil {
+		return requestIntent.underlyingRequest, nil
+	}
+	newRequest, createRequestErr := http.NewRequest(requestIntent.method, requestIntent.url, requestIntent.body)
+	requestIntent.underlyingRequest = newRequest
+	requestIntent.requestError = createRequestErr
+	if createRequestErr == nil {
+		for headerKey, headerValues := range requestIntent.headers {
+			for _, value := range headerValues {
+				requestIntent.underlyingRequest.Header.Add(headerKey, value)
+			}
+		}
+		if requestIntent.context != nil {
+			requestIntent.underlyingRequest = requestIntent.underlyingRequest.WithContext(requestIntent.context)
+		}
+	}
+	return newRequest, createRequestErr
+}
+
+func (requestIntent *ProxiedRequestImpl) Send() (*http.Response, error) {
+	if requestIntent.underlyingRequest == nil {
+		requestIntent.UnderlyingRequest()
+	}
+
+	if requestIntent.requestError != nil {
+		return nil, requestIntent.requestError
+	}
+
+	return http.DefaultClient.Do(requestIntent.underlyingRequest)
+}
+
+func (requestIntent *ProxiedRequestImpl) verifyUnderlyingRequestNotGenerated() {
+	if requestIntent.underlyingRequest != nil {
+		requestIntent.requestError = fmt.Errorf("tried to modify request proxy after generating the underlying request")
+	}
+}
