@@ -8,6 +8,18 @@ import (
 )
 
 type ProxiedRequest interface {
+	// Adds the key-value pair to the header.
+	// It appends to any existing values associated with key
+	AddHeader(key string, value string) ProxiedRequest
+	// Set the key-value pair to the header.
+	// It replaces any existing values associated with key
+	SetHeader(key string, value string) ProxiedRequest
+	// Set the key-value pairs to the header.
+	// It replaces any existing values associated with the keys
+	SetHeaders(headers map[string]string) ProxiedRequest
+	// It allows to set comma separated values for the provided keys
+	// It replaces any existing values associated with the keys
+	SetMultiValueHeaders(headers map[string][]string) ProxiedRequest
 	// Generates the underlying request without sending it. After this the request
 	// can't be modified or it will return an error
 	UnderlyingRequest() (*http.Request, error)
