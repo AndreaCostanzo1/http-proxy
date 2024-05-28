@@ -11,12 +11,17 @@ type ProxiedRequest interface {
 	// Adds the key-value pair to the header.
 	// It appends to any existing values associated with key
 	AddHeader(key string, value string) ProxiedRequest
+	// Applies the body to request replacing the older one if present
+	SetBody(body io.Reader) ProxiedRequest
 	// Set the key-value pair to the header.
 	// It replaces any existing values associated with key
 	SetHeader(key string, value string) ProxiedRequest
 	// Set the key-value pairs to the header.
 	// It replaces any existing values associated with the keys
 	SetHeaders(headers map[string]string) ProxiedRequest
+	// Transform the passed object into an io.Reader and applies it as body
+	// of the request, replacing the older one if present
+	SetJSONBody(body any) ProxiedRequest
 	// It allows to set comma separated values for the provided keys
 	// It replaces any existing values associated with the keys
 	SetMultiValueHeaders(headers map[string][]string) ProxiedRequest
