@@ -9,7 +9,7 @@ import (
 
 type Format string
 
-const FORMAT = "Format"
+const FORMAT = "__FORMAT"
 
 const (
 	STRING Format = "String"
@@ -61,7 +61,7 @@ func extractResponseBody(response *http.Response) map[string]interface{} {
 	response.Body = io.NopCloser(&buf)
 	switch {
 	case jsonErr == nil:
-		responseBody = map[string]interface{}{FORMAT: JSON}
+		responseBody[FORMAT] = JSON
 	default:
 		responseBody = map[string]interface{}{FORMAT: STRING}
 	}
