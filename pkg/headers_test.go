@@ -134,3 +134,30 @@ func TestSetMultiValueHeaders(t *testing.T) {
 		}
 	})
 }
+
+func TestSetJWTAuthToken(t *testing.T) {
+	t.Run("SetJWTAuthToken sets the Authorization header", func(t *testing.T) {
+		expectedToken := "some-jwt-token"
+
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			authHeader := r.Header.Get("Authorization")
+			expectedAuthHeader := "Bearer " + expectedToken
+			if authHeader != expectedAuthHeader {
+				t.Errorf("expected Authorization header to be '%s', got '%s'", expectedAuthHeader, authHeader)
+			}
+			w.WriteHeader(http.StatusOK)
+		}))
+		defer server.Close()
+
+		req := http_proxy.NewRequest("GET", server.URL)
+		req.SetJWTAuthToken(expectedToken)
+		resp, err := req.Send()
+
+		if err != nil {
+			t.Errorf("expected no error, got %v", err)
+		}
+		if resp.StatusCode != http.StatusOK {
+			t.Errorf("expected status code 200, got %d", resp.StatusCode)
+		}
+	})
+}
