@@ -97,11 +97,11 @@ func TestJsonFormatKeyAndParsedBody(t *testing.T) {
 		if receivedBody == nil {
 			t.Errorf("expected body to be parsed, got nil")
 		} else {
-			format, formatExists := receivedBody[http_proxy.FORMAT]
+			format, formatExists := receivedBody[http_proxy.FORMAT_TYPE]
 			if !formatExists {
 				t.Errorf("expected FORMAT key in parsed body")
 			}
-			if format != http_proxy.JSON {
+			if format != http_proxy.FORMAT_JSON {
 				t.Errorf("expected FORMAT to be 'JSON', got %v", format)
 			}
 			status, statusExists := receivedBody["status"]
