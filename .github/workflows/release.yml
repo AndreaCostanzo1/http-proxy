@@ -21,15 +21,23 @@ jobs:
         run: |
           # Extract the base version from the branch name
           BASE_VERSION=$(echo "${GITHUB_REF#refs/heads/release/}" | sed -E 's/v([0-9]+\.[0-9]+)\.x/\1/')
+          echo "Base version extracted from branch name: $BASE_VERSION"
+          git fetch origin --deepen=1 refs/tags/v${BASE_VERSION}.*:refs/tags/v${BASE_VERSION}.*
           # Find the latest tag matching the base version
-          LATEST_TAG=$(git tag -l "v${BASE_VERSION}.*" --sort=-v:refname | head -n 1)
+          echo "Extracting version tags matching the branch pattern:"
+          echo "$(git tag -l "v${BASE_VERSION}.*")"
+          LATEST_TAG=$(git tag -l "v${BASE_VERSION}.*" --sort=-v:refname| head -n 1)
           if [ -z "$LATEST_TAG" ]; then
             # No tag found, set NEXT_VERSION to v${BASE_VERSION}.0
+            echo "No previous tag found. Setting NEXT_VERSION to v${BASE_VERSION}.0"
             NEXT_VERSION="v${BASE_VERSION}.0"
           else
             # Increment the patch version
             NEXT_VERSION=$(echo "$LATEST_TAG" | awk -F. -v OFS=. '{print $1, $2, $3+1}')
+            echo "Previous tag found: $LATEST_TAG"
+            echo "Incrementing patch version. NEXT_VERSION set to $NEXT_VERSION"
           fi
+          echo "Setting NEXT_VERSION environment variable: $NEXT_VERSION"
           echo "NEXT_VERSION=$NEXT_VERSION" >> $GITHUB_ENV
         shell: bash
 
