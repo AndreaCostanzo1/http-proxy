@@ -7,13 +7,13 @@ import (
 	"net/http"
 )
 
-type Format string
+type format string
 
-const FORMAT = "__FORMAT"
+const FORMAT_TYPE = "__FORMAT"
 
 const (
-	STRING Format = "String"
-	JSON   Format = "JSON"
+	FORMAT_STRING format = "String"
+	FORMAT_JSON   format = "JSON"
 )
 
 type errorHandler = func(parsedBody map[string]interface{}, response *http.Response) error
@@ -61,9 +61,9 @@ func extractResponseBody(response *http.Response) map[string]interface{} {
 	response.Body = io.NopCloser(&buf)
 	switch {
 	case jsonErr == nil:
-		responseBody[FORMAT] = JSON
+		responseBody[FORMAT_TYPE] = FORMAT_JSON
 	default:
-		responseBody = map[string]interface{}{FORMAT: STRING}
+		responseBody = map[string]interface{}{FORMAT_TYPE: FORMAT_STRING}
 	}
 	return responseBody
 }
