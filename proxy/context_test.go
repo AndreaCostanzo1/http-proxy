@@ -6,7 +6,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	http_proxy "github.com/AndreaCostanzo1/http-proxy/pkg"
+	http_proxy "github.com/AndreaCostanzo1/http-proxy/proxy"
 )
 
 func TestWithContext(t *testing.T) {
