@@ -18,12 +18,12 @@ const (
 
 type errorHandler = func(parsedBody map[string]interface{}, response *http.Response) error
 
-func (requestIntent *ProxiedRequestImpl) WithGenericInterceptor(handlers ...errorHandler) ProxiedRequest {
+func (requestIntent *proxiedRequestImpl) WithGenericInterceptor(handlers ...errorHandler) ProxiedRequest {
 	requestIntent.genericInterceptors = append(requestIntent.genericInterceptors, handlers...)
 	return requestIntent
 }
 
-func (requestIntent *ProxiedRequestImpl) WithStatusCodeInterceptor(statusCode int, handlers ...errorHandler) ProxiedRequest {
+func (requestIntent *proxiedRequestImpl) WithStatusCodeInterceptor(statusCode int, handlers ...errorHandler) ProxiedRequest {
 	existingHandlers, isFound := requestIntent.statusCodeInterceptors[statusCode]
 	if !isFound {
 		existingHandlers = []errorHandler{}
@@ -32,7 +32,7 @@ func (requestIntent *ProxiedRequestImpl) WithStatusCodeInterceptor(statusCode in
 	return requestIntent
 }
 
-func (requestIntent *ProxiedRequestImpl) validateResponse(response *http.Response) (*http.Response, error) {
+func (requestIntent *proxiedRequestImpl) validateResponse(response *http.Response) (*http.Response, error) {
 	var err error
 	responseBody := extractResponseBody(response)
 	if statusCodeInterceptors, isDefined := requestIntent.statusCodeInterceptors[response.StatusCode]; isDefined {
