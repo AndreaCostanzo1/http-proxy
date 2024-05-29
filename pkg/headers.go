@@ -1,5 +1,7 @@
 package http_proxy
 
+import "fmt"
+
 func (requestIntent *ProxiedRequestImpl) AddHeader(key string, value string) ProxiedRequest {
 	requestIntent.verifyUnderlyingRequestNotGenerated()
 	if _, isFound := requestIntent.headers[key]; !isFound {
@@ -29,4 +31,8 @@ func (requestIntent *ProxiedRequestImpl) SetMultiValueHeaders(headers map[string
 		requestIntent.headers[key] = values
 	}
 	return requestIntent
+}
+
+func (requestIntent *ProxiedRequestImpl) SetJWTAuthToken(token string) ProxiedRequest {
+	return requestIntent.SetHeader("Authorization", fmt.Sprintf("Bearer %s", token))
 }
