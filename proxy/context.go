@@ -4,7 +4,7 @@ import (
 	"context"
 )
 
-func (requestIntent *ProxiedRequestImpl) WithContext(ctx context.Context) ProxiedRequest {
+func (requestIntent *proxiedRequestImpl) WithContext(ctx context.Context) ProxiedRequest {
 	requestIntent.context = ctx
 	return requestIntent
 }

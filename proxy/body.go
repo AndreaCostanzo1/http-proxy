@@ -6,13 +6,13 @@ import (
 	"io"
 )
 
-func (requestIntent *ProxiedRequestImpl) SetBody(body io.Reader) ProxiedRequest {
+func (requestIntent *proxiedRequestImpl) SetBody(body io.Reader) ProxiedRequest {
 	requestIntent.verifyUnderlyingRequestNotGenerated()
 	requestIntent.body = body
 	return requestIntent
 }
 
-func (requestIntent *ProxiedRequestImpl) SetJSONBody(body any) ProxiedRequest {
+func (requestIntent *proxiedRequestImpl) SetJSONBody(body any) ProxiedRequest {
 	requestIntent.verifyUnderlyingRequestNotGenerated()
 	payload, marshalErr := json.Marshal(body)
 	requestIntent.requestError = marshalErr

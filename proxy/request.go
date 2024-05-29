@@ -39,7 +39,7 @@ type ProxiedRequest interface {
 	Send() (*http.Response, error)
 }
 
-type ProxiedRequestImpl struct {
+type proxiedRequestImpl struct {
 	method                 string
 	url                    string
 	body                   io.Reader
@@ -51,8 +51,8 @@ type ProxiedRequestImpl struct {
 	genericInterceptors    []errorHandler
 }
 
-func NewRequest(method string, url string) *ProxiedRequestImpl {
-	return &ProxiedRequestImpl{
+func NewRequest(method string, url string) *proxiedRequestImpl {
+	return &proxiedRequestImpl{
 		method:                 method,
 		headers:                map[string][]string{},
 		url:                    url,
@@ -62,7 +62,7 @@ func NewRequest(method string, url string) *ProxiedRequestImpl {
 	}
 }
 
-func (requestIntent *ProxiedRequestImpl) UnderlyingRequest() (*http.Request, error) {
+func (requestIntent *proxiedRequestImpl) UnderlyingRequest() (*http.Request, error) {
 	if requestIntent.requestError != nil {
 		return nil, requestIntent.requestError
 	}
@@ -85,7 +85,7 @@ func (requestIntent *ProxiedRequestImpl) UnderlyingRequest() (*http.Request, err
 	return newRequest, createRequestErr
 }
 
-func (requestIntent *ProxiedRequestImpl) Send() (*http.Response, error) {
+func (requestIntent *proxiedRequestImpl) Send() (*http.Response, error) {
 	if requestIntent.underlyingRequest == nil {
 		requestIntent.UnderlyingRequest()
 	}
@@ -102,7 +102,7 @@ func (requestIntent *ProxiedRequestImpl) Send() (*http.Response, error) {
 	return response, err
 }
 
-func (requestIntent *ProxiedRequestImpl) verifyUnderlyingRequestNotGenerated() {
+func (requestIntent *proxiedRequestImpl) verifyUnderlyingRequestNotGenerated() {
 	if requestIntent.underlyingRequest != nil {
 		requestIntent.requestError = fmt.Errorf("tried to modify request proxy after generating the underlying request")
 	}
