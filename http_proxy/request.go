@@ -47,6 +47,8 @@ type proxiedRequestImpl struct {
 	headers                map[string][]string
 	requestError           error
 	underlyingRequest      *http.Request
+	maxRetries             int
+	retryOptions           IRetryOptions
 	statusCodeInterceptors map[int][]errorHandler
 	genericInterceptors    []errorHandler
 }
@@ -59,6 +61,11 @@ func NewRequest(method string, url string) *proxiedRequestImpl {
 		body:                   http.NoBody,
 		genericInterceptors:    []errorHandler{},
 		statusCodeInterceptors: map[int][]errorHandler{},
+		maxRetries:             5,
+		retryOptions: &ExponentialRetry{
+			InitialDelayMS: 300,
+			Base:           3,
+		},
 	}
 }
 
